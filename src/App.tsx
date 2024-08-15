@@ -24,12 +24,9 @@ function App() {
   const [sentences, setSentences] = useState<string[]>([]);
   const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
   const [currentSentence, setCurrentSentence] = useState<Sentence>();
-  const [hebrewSentence, setHebrewSentence] = useState('');
-  const [arabicSentence, setArabicSentence] = useState('');
-  const [taatikSentence, setTaatikSentence] = useState('');
   const [nextSentence, setNextSentence] = useState<Sentence | null>(null);
   const [score, setScore] = useState(0);
-  const [levelupScore, setLevelupScore] = useState(5);
+  const [levelupScore, setLevelupScore] = useState(2);
   const [level, setLevel] = useState(1);
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -61,10 +58,10 @@ function App() {
     try {
       if (nextSentence) {
         setCurrentSentence(nextSentence);
-        setHebrewSentence(nextSentence.hebrew);
         populateWordBank(nextSentence);
         setNextSentence(null);
-      } else {
+      } 
+      else {
         const hebrew = sentences[currentSentenceIndex].trim();
         const arabic = await ApiService.translateSentence(hebrew);
         const diacritized = await ApiService.diacritizeSentence(arabic);
@@ -80,7 +77,6 @@ function App() {
         };
 
         setCurrentSentence(sentence);
-        setHebrewSentence(sentence.hebrew);
         populateWordBank(sentence);
       }
       
@@ -111,16 +107,25 @@ function App() {
 
     setLoading(true);
 
-    setArabicSentence(currentSentence?.diacritized || '');
-    setTaatikSentence(currentSentence?.taatik || '');
     setShowCorrectAnswer(true);
 
     if (userAnswer === correctAnswer) {
       setIsCorrect(true);
+      setScore(current => current + 1);
+      if (score >= levelupScore) {
+        levelUp()
+      }
     } else {
       setIsCorrect(false);
+      if (score > 0) setScore(current => current - 1);
     }
   };
+
+  const levelUp = () => {
+    setScore(0);
+    setLevel(current => current + 1);
+    setLevelupScore(Math.pow(level, 2))
+  }
 
   const nextQuestion = () => {
     setShowCorrectAnswer(false);
@@ -139,23 +144,22 @@ function App() {
   }
 
   function clearFields() {
-    setHebrewSentence('');
     setConstructAreaWords([]);
     setBankWords([]);  
   }
 
   return (
     <>
-      <ProgressBar percentage={35}></ProgressBar>
+      <ProgressBar percentage={score / levelupScore * 100}></ProgressBar>
       <h2>תרגמו את המשפט</h2>
-      <HebrewSentence>{hebrewSentence}</HebrewSentence>
+      <HebrewSentence>{currentSentence?.hebrew}</HebrewSentence>
       <ConstructSentenceArea words={constructAreaWords} onWordClick={loading ? () => {} : (word) => handleWordClick(word, 'construct')} />
       <WordBank words={bankWords} onWordClick={loading ? () => {} : (word) => handleWordClick(word, 'bank')} />
       <CheckButton disabled={!constructAreaWords.length && true} onClick={showCorrectAnswer ? nextQuestion : checkAnswer}>
         {showCorrectAnswer ? 'המשך' : 'בדיקה'}
       </CheckButton>
       <CorrectAnswer show={showCorrectAnswer} isCorrect={isCorrect}
-                     arabic={arabicSentence} taatik={taatikSentence} />
+                     arabic={currentSentence?.arabic} taatik={currentSentence?.taatik} />
     </>
   );
 }

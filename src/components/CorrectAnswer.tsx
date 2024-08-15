@@ -1,8 +1,8 @@
 interface Props {
     show: boolean
     isCorrect: boolean
-    taatik: string
-    arabic: string
+    taatik?: string
+    arabic?: string
 }
 
 export default function CorrectAnswer({ show, taatik, arabic, isCorrect }: Props) {
