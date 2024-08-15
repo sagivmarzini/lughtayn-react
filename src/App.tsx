@@ -88,7 +88,7 @@ function App() {
   };
 
   const populateWordBank = (sentence: Sentence) => {
-    setBankWords(shuffleArray(sentence.arabic.replace('?', '').trim().split(' ')));
+    setBankWords(shuffleArray(sentence.arabic.replace('؟', '').trim().split(' ')));
   };
 
   const handleWordClick = (word: string, source: string) => {
@@ -103,7 +103,7 @@ function App() {
 
   const checkAnswer = () => {
     const userAnswer = constructAreaWords.join(' ');
-    const correctAnswer = currentSentence?.arabic.replace('?', '');
+    const correctAnswer = currentSentence?.arabic.replace('؟', '');
 
     setLoading(true);
 
@@ -112,7 +112,7 @@ function App() {
     if (userAnswer === correctAnswer) {
       setIsCorrect(true);
       setScore(current => current + 1);
-      if (score >= levelupScore) {
+      if (score === levelupScore) {
         levelUp()
       }
     } else {
@@ -159,7 +159,7 @@ function App() {
         {showCorrectAnswer ? 'המשך' : 'בדיקה'}
       </CheckButton>
       <CorrectAnswer show={showCorrectAnswer} isCorrect={isCorrect}
-                     arabic={currentSentence?.arabic} taatik={currentSentence?.taatik} />
+                     arabic={currentSentence?.diacritized} taatik={currentSentence?.taatik} />
     </>
   );
 }
